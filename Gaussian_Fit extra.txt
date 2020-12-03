@@ -1,0 +1,66 @@
+rename("Analysis Window");
+getSelectionBounds(x, y, width, height);
+
+print ("start xpos Rsquared "+ x, y, width, height);
+
+//This loads the x dimension with an incremental series of 
+// numbers across the range of profile length
+ a = newArray(height);
+    for (i=0; i<height; i++) {
+        a[i] = i;
+
+}
+    for (j=0; j<width; j++) {
+        makeLine(x+j,y,x+j,y+height-1);
+
+profiley = getProfile();  
+
+
+Array.getStatistics(profiley, min, max, mean, std); 
+
+//This is the fit. Number 12 is the number for a Gaussian Fit.
+setBatchMode(true);
+
+//Plot.create("Fancier Plot", "X", "Y");
+//        Plot.setLimits(0, width, 0, 1200);
+//But we have specifically defined a Gaussian below:
+
+Gaussian = "y = a + (b-a)*exp(-(x-c)*(x-c)/(2*d*d))";
+
+//Find the max value
+for (q=0; q<height; q++){
+tempprof = profiley[q];
+//Array.getStatistics(profiley, min, max, mean, std);
+if (tempprof == max) {
+   peak = q;
+   }
+}
+//Below is the estimates (mean is used as it works better than min)
+para = newArray(mean,max,peak,1);
+
+//Fitting procedure
+     Fit.doFit(Gaussian, a, profiley,para);
+  
+     Fit.plot();
+
+
+
+if (j==0)
+         stack = getImageID;
+     else {
+         run("Copy");
+         close();
+         selectImage(stack);
+         run("Add Slice");
+         run("Paste");
+     }
+//This section prints the fit parameters 
+     //for (k=0; k<3; k++) {
+//         print("   p["+k+"]="+d2s(Fit.p(k),3));
+//   }
+print((d2s(Fit.p(0),2))+" "+(d2s(Fit.p(1),2))+" "+(d2s(Fit.p(2),2))+" "+(d2s(Fit.p(3),2))+" "+(d2s(Fit.rSquared,2)));
+//print("q = "); (peak); (mean); (max); "end";
+setBatchMode(false);
+selectWindow("Analysis Window");
+
+    }
